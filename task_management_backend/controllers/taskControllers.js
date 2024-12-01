@@ -80,7 +80,7 @@ const getStatistics = async (req, res) => {
       pendingTasks,
       averageCompletionTime: parseFloat(averageCompletionTime.toFixed(2)) || 0,
       pendingTaskSummary: {
-        totalLapsedTime: pendingStats[0][0]?.timeLapsed,
+        totalLapsedTime: pendingStats[0][0]?.timeLapsed > 0 ? pendingStats[0][0]?.timeLapsed : 0,
         totalRemainingTime: pendingStats[0][0]?.timeRemaining > 0 ? pendingStats[0][0]?.timeRemaining : 0,
       },
       priorityStats,
