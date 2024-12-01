@@ -71,7 +71,7 @@ const getPriorityStatsForAll = async (userId) => {
       })
       .count({ pendingTasks: 'tasks.id' })
       .sum({
-        timeLapsed: db.raw('TIMESTAMPDIFF(HOUR, start_time, NOW())'),
+        timeLapsed: db.raw(`GREATEST(TIMESTAMPDIFF(HOUR, start_time, NOW()), 0)`),
         timeRemaining: db.raw(
           `GREATEST(TIMESTAMPDIFF(HOUR, NOW(), end_time), 0)`
         ),

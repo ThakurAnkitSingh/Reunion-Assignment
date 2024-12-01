@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import axios from "axios";
+import api from "@/helper/api";
 
 interface PriorityStat {
   priority: number;
@@ -30,10 +31,10 @@ const Dashboard: React.FC = () => {
     const fetchStats = async () => {
       const token = localStorage.getItem("token");
       try {
-        const response = await axios.get("http://localhost:5000/api/tasks/dashboard/statistics", {
+        const response = await axios.get(`${api}/tasks/dashboard/statistics`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setStats(response.data);
+        setStats(response?.data);
       } catch (err) {
         console.error("Failed to fetch statistics:", err);
         setError("Unable to load dashboard statistics. Please try again later.");
@@ -51,8 +52,8 @@ const Dashboard: React.FC = () => {
     return <div className="text-center">Loading...</div>;
   }
 
-  const completedPercentage = ((stats.completedTasks / stats.totalTasks) * 100).toFixed(2) || "0";
-  const pendingPercentage = ((stats.pendingTasks / stats.totalTasks) * 100).toFixed(2) || "0";
+  const completedPercentage = ((stats?.completedTasks / stats?.totalTasks) * 100).toFixed(2) || "0";
+  const pendingPercentage = ((stats?.pendingTasks / stats?.totalTasks) * 100).toFixed(2) || "0";
 
   return (
     <div className="p-6 space-y-6">
@@ -65,7 +66,7 @@ const Dashboard: React.FC = () => {
             <CardTitle>Total Tasks</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold text-blue-500">{stats.totalTasks}</p>
+            <p className="text-4xl font-bold text-blue-500">{stats?.totalTasks}</p>
           </CardContent>
         </Card>
 
@@ -92,7 +93,7 @@ const Dashboard: React.FC = () => {
             <CardTitle>Average Completion Time</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-yellow-500">{stats.averageCompletionTime} hrs</p>
+            <p className="text-2xl font-bold text-yellow-500">{stats?.averageCompletionTime} hrs</p>
           </CardContent>
         </Card>
       </div>
@@ -105,7 +106,7 @@ const Dashboard: React.FC = () => {
             <CardTitle>Pending Tasks</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold text-red-500">{stats.pendingTasks}</p>
+            <p className="text-4xl font-bold text-red-500">{stats?.pendingTasks}</p>
           </CardContent>
         </Card>
 
@@ -115,7 +116,7 @@ const Dashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <p className="text-4xl font-bold text-blue-500">
-              {stats.pendingTaskSummary.totalLapsedTime || 0} hrs
+              {stats?.pendingTaskSummary?.totalLapsedTime || 0} hrs
             </p>
           </CardContent>
         </Card>
@@ -126,7 +127,7 @@ const Dashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <p className="text-4xl font-bold text-orange-500">
-              {stats.pendingTaskSummary.totalRemainingTime || 0} hrs
+              {stats?.pendingTaskSummary?.totalRemainingTime || 0} hrs
             </p>
           </CardContent>
         </Card>
@@ -145,12 +146,12 @@ const Dashboard: React.FC = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {stats.priorityStats.map((priorityStat, index) => (
+            {stats?.priorityStats.map((priorityStat, index) => (
               <TableRow key={index}>
-                <TableCell>{priorityStat.priority}</TableCell>
-                <TableCell>{priorityStat.pendingTasks}</TableCell>
-                <TableCell>{priorityStat.timeLapsed || 0}</TableCell>
-                <TableCell>{priorityStat.timeRemaining || 0}</TableCell>
+                <TableCell>{priorityStat?.priority}</TableCell>
+                <TableCell>{priorityStat?.pendingTasks}</TableCell>
+                <TableCell>{priorityStat?.timeLapsed || 0}</TableCell>
+                <TableCell>{priorityStat?.timeRemaining || 0}</TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -9,6 +9,7 @@ const createTask = async (req, res) => {
     const task = await taskModel.createTask(userId, taskData);
     res.status(201).json({ message: 'Task created successfully', task });
   } catch (error) {
+    console.error('Error creating task:', error);
     res.status(500).json({ message: 'Error creating task', error });
   }
 };
@@ -22,6 +23,7 @@ const getTasks = async (req, res) => {
     const tasks = await taskModel.getTasksByUser(userId, { priority, status }, sortBy);
     res.status(200).json(tasks);
   } catch (error) {
+    console.error('Error fetching tasks:', error);
     res.status(500).json({ message: 'Error fetching tasks', error });
   }
 };
@@ -36,6 +38,7 @@ const updateTask = async (req, res) => {
     await taskModel.updateTask(taskId, userId, taskData);
     res.status(200).json({ message: 'Task updated successfully' });
   } catch (error) {
+    console.error('Error updating task:', error);
     res.status(500).json({ message: 'Error updating task', error });
   }
 };
@@ -49,6 +52,7 @@ const deleteTask = async (req, res) => {
     await taskModel.deleteTask(taskIds, userId);
     res.status(200).json({ message: 'Task deleted successfully' });
   } catch (error) {
+    console.error('Error deleting task:', error);
     res.status(500).json({ message: 'Error deleting task', error });
   }
 };
@@ -81,7 +85,9 @@ const getStatistics = async (req, res) => {
       },
       priorityStats,
     });
+    
   } catch (error) {
+    console.error('Error fetching statistics:', error);
     res.status(500).json({ message: 'Error fetching statistics', error });
   }
 };

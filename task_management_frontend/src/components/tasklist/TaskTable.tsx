@@ -7,10 +7,11 @@ import {
   TableBody,
   TableHeader,
 } from "@/components/ui/table";
+import { Task } from '@/types/task';
 
 const TaskTable: React.FC<{
-  onEdit: (task: any) => void;
-  tasks: any[];
+  onEdit: (task: Task) => void;
+  tasks: Task[];
   selectedTasks: Set<string>;
   setSelectedTasks: React.Dispatch<React.SetStateAction<Set<string>>>;
 }> = ({ onEdit, tasks, selectedTasks, setSelectedTasks }) => {
@@ -62,8 +63,8 @@ const TaskTable: React.FC<{
           <TableRow key={task?.id} className="hover:bg-gray-100">
             <TableCell className="p-2 text-center">
               <Checkbox
-                checked={selectedTasks.has(task?.id)}
-                onClick={() => handleCheckboxChange(task?.id)}
+                checked={task?.id ? selectedTasks.has(task?.id) : false}
+                onClick={() => task?.id && handleCheckboxChange(task?.id)}
               />
             </TableCell>
             <TableCell className="p-2 text-center">{task.id}</TableCell>

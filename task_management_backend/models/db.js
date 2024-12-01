@@ -1,6 +1,6 @@
-const knex = require('knex');
-const knexConfig = require('../knexfile');
+   // db.js
+   const knex = require('knex');
+   const config = require('../knexfile'); // Adjust the path as necessary
 
-const db = knex(knexConfig[process.env.NODE_ENV || 'development']);
-
-module.exports = db;
+   const db = knex(config.development);
+   module.exports = db;

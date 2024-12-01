@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import api from "@/helper/api";
 
 const Signup: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -31,7 +32,7 @@ const Signup: React.FC = () => {
         toast.error("Password cannot contain spaces");
         return;
       }
-      await axios.post("http://localhost:5000/api/auth/signup", { email, password });
+      await axios.post(`${api}/auth/signup`, { email, password });
       toast.success("Signup successful");
       navigate("/login");
     } catch (err) {

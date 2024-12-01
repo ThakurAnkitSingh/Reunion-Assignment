@@ -5,6 +5,7 @@ import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { toast } from "react-toastify";
+import { Task } from '@/types/task';
 
 const formatDateTime = (dateTime: string) => {
     return dateTime ? dateTime.split('T')[0] + 'T' + dateTime.split('T')[1].slice(0, 5) : '';
@@ -12,16 +13,9 @@ const formatDateTime = (dateTime: string) => {
   
   const TaskForm: React.FC<{
     mode: "Add" | "Edit";
-    task?: any;
+    task?: Task;
     onClose: () => void;
-    onSubmit: (task: {
-      id?: string;
-      title: string;
-      priority: number;
-      status: string;
-      start_time: string;
-      end_time: string;
-    }) => void;
+    onSubmit: (task: Task) => void;
   }> = ({ mode, task, onClose, onSubmit }) => {
     const [title, setTitle] = useState(task?.title || "");
     const [priority, setPriority] = useState(task?.priority || 1);

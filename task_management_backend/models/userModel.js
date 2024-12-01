@@ -8,7 +8,7 @@ const createUser = async (email, password) => {
     const result = await db('users').insert({ email, password: hashedPassword });
     return result;
   } catch (err) {
-    throw new Error('Error creating user');
+    throw new Error('Error creating user', err);
   }
 };
 
@@ -18,7 +18,7 @@ const findUserByEmail = async (email) => {
     const user = await db('users').where({ email }).first();
     return user;
   } catch (err) {
-    throw new Error('Error finding user');
+    throw new Error('Error finding user', err);
   }
 };
 

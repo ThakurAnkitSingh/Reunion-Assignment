@@ -1,26 +1,36 @@
 import { useEffect, useState } from "react";
 import TaskTable from "./TaskTable";
 import TaskForm from "./TaskForm";
-import { Button } from "../ui/button";
-import { Select, SelectItem, SelectTrigger, SelectContent } from "../ui/select";
+import { Button } from "@mui/material";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Grid,
+  Box,
+} from "@mui/material";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { Task } from "@/types/task";
+import api from "@/helper/api";
 
 const TaskList: React.FC = () => {
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
-  const [editTask, setEditTask] = useState(null);
-  const [tasks, setTasks] = useState<any>([]);
+  const [editTask, setEditTask] = useState<Task | undefined>(undefined);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
 
   // Filter and sorting states
   const [sortBy, setSortBy] = useState("start_time ASC");
-  const [priorityFilter, setPriorityFilter] = useState<number | null>(null);
+  const [priorityFilter, setPriorityFilter] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch tasks from server with filters and sorting
     const fetchTasks = async () => {
-      const response = await axios.get("http://localhost:5000/api/tasks/", {
+      const response = await axios.get(`${api}/tasks/`, {
         headers: {
           authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -30,25 +40,25 @@ const TaskList: React.FC = () => {
           status: statusFilter,
         },
       });
-      setTasks(response.data);
+      setTasks(response?.data);
     };
     fetchTasks();
   }, [isTaskFormOpen, sortBy, priorityFilter, statusFilter]);
 
   const openAddTaskForm = () => {
-    setEditTask(null); // Ensure it's a fresh task
+    setEditTask(undefined);
     setIsTaskFormOpen(true);
   };
 
-  const openEditTaskForm = (task: any) => {
+  const openEditTaskForm = (task: Task) => {
     setEditTask(task);
     setIsTaskFormOpen(true);
   };
 
-  const handleSubmit = async (task: any) => {
-    let url = "http://localhost:5000/api/tasks";
+  const handleSubmit = async (task: Task) => {
+    let url = `${api}/tasks`;
     if (task?.id) {
-      url += `/${task.id}`;
+      url += `/${task?.id}`;
     }
     await axios.post(url, task, {
       headers: {
@@ -67,17 +77,17 @@ const TaskList: React.FC = () => {
     }
 
     try {
-      await axios.delete("http://localhost:5000/api/tasks/delete", {
+      await axios.delete(`${api}/tasks/delete`, {
         headers: {
           authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        data: { ids: selectedTaskIds }, // Send selected IDs to the backend
+        data: { ids: selectedTaskIds },
       });
 
       // Remove deleted tasks from the local state
       toast.success("Tasks deleted");
-      setTasks((prevTasks: any) =>
-        prevTasks.filter((task: any) => !selectedTaskIds.includes(task.id))
+      setTasks((prevTasks: Task[]) =>
+        prevTasks.filter((task: Task) => task?.id && !selectedTaskIds.includes(task?.id))
       );
       setSelectedTasks(new Set()); // Reset the selected tasks
     } catch (error) {
@@ -93,7 +103,7 @@ const TaskList: React.FC = () => {
     if (filterType === "sort") {
       setSortBy(value as string);
     } else if (filterType === "priority") {
-      setPriorityFilter(value as number | null);
+      setPriorityFilter(value as string | null);
     } else if (filterType === "status") {
       setStatusFilter(value as string | null);
     }
@@ -106,80 +116,97 @@ const TaskList: React.FC = () => {
   };
 
   return (
-    <div className="p-6">
+    <Box p={2}>
       <h1 className="text-2xl font-semibold mb-4">Task List</h1>
-      <div className="flex justify-between items-center mb-6">
-        <div className="space-x-4">
+
+      {/* Actions Section */}
+      <Grid container spacing={2} justifyContent="space-between" alignItems="center">
+        <Grid item xs={12} md={6}>
           <Button
             onClick={openAddTaskForm}
-            className="bg-green-600 text-white hover:bg-green-700"
+            variant="contained"
+            color="primary"
+            style={{ marginRight: "8px" }}
           >
             Add Task
           </Button>
           <Button
             onClick={handleDeleteSelected}
-            className="bg-red-600 text-white hover:bg-red-700"
+            variant="contained"
+            color="secondary"
           >
             Delete Selected
           </Button>
-        </div>
+        </Grid>
 
         {/* Filters Section */}
-        <div className="flex space-x-4">
-          <Select
-            value={sortBy}
-            onValueChange={(value) => handleFilterChange("sort", value)}
-          >
-            <SelectTrigger className="p-2 border rounded">
-              <span>Sort By</span>
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value="start_time ASC">Start Time: ASC</SelectItem>
-              <SelectItem value="start_time DESC">Start Time: DESC</SelectItem>
-              <SelectItem value="end_time ASC">End Time: ASC</SelectItem>
-              <SelectItem value="end_time DESC">End Time: DESC</SelectItem>
-            </SelectContent>
-          </Select>
+        <Grid item xs={12} md={6}>
+          <Grid container spacing={2} justifyContent="flex-end">
+            <Grid item xs={6} sm={4}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Sort By</InputLabel>
+                <Select
+                  value={sortBy}
+                  onChange={(e: SelectChangeEvent) =>
+                    handleFilterChange("sort", e.target.value)
+                  }
+                >
+                  <MenuItem value="start_time ASC">Start Time: ASC</MenuItem>
+                  <MenuItem value="start_time DESC">Start Time: DESC</MenuItem>
+                  <MenuItem value="end_time ASC">End Time: ASC</MenuItem>
+                  <MenuItem value="end_time DESC">End Time: DESC</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
 
-          <Select
-            value={priorityFilter ?? undefined} // Ensure value is `undefined` for null
-            onValueChange={(value) => handleFilterChange("priority", value)}
-          >
-            <SelectTrigger className="p-2 border rounded">
-              <span>Priority</span>
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value={undefined}>All</SelectItem> {/* Placeholder */}
-              {[1, 2, 3, 4, 5].map((priority) => (
-                <SelectItem key={priority} value={priority}>
-                  {priority}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Grid item xs={6} sm={4}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Priority</InputLabel>
+                <Select
+                  value={priorityFilter ?? ""}
+                  onChange={(e: SelectChangeEvent) =>
+                    handleFilterChange("priority", e.target.value)
+                  }
+                >
+                  <MenuItem value="">All</MenuItem>
+                  {[1, 2, 3, 4, 5].map((priority) => (
+                    <MenuItem key={priority} value={priority}>
+                      {priority}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
 
-          <Select
-            value={statusFilter ?? undefined} // Ensure value is `undefined` for null
-            onValueChange={(value) => handleFilterChange("status", value)}
-          >
-            <SelectTrigger className="p-2 border rounded">
-              <span>Status</span>
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value={undefined}>All</SelectItem> {/* Placeholder */}
-              <SelectItem value="finished">Finished</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-            </SelectContent>
-          </Select>
+            <Grid item xs={6} sm={4}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={statusFilter ?? ""}
+                  onChange={(e: SelectChangeEvent) =>
+                    handleFilterChange("status", e.target.value)
+                  }
+                >
+                  <MenuItem value="">All</MenuItem>
+                  <MenuItem value="finished">Finished</MenuItem>
+                  <MenuItem value="pending">Pending</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
 
-          <Button
-            onClick={handleRemoveFilters}
-            className="bg-gray-300 text-black hover:bg-gray-400"
-          >
-            Remove Filters
-          </Button>
-        </div>
-      </div>
+            <Grid item xs={12}>
+              <Button
+                onClick={handleRemoveFilters}
+                variant="outlined"
+                color="inherit"
+                fullWidth
+              >
+                Remove Filters
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
 
       <TaskTable
         onEdit={openEditTaskForm}
@@ -196,7 +223,7 @@ const TaskList: React.FC = () => {
           onSubmit={handleSubmit}
         />
       )}
-    </div>
+    </Box>
   );
 };
 
